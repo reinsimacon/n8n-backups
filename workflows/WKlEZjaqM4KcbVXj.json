@@ -1,0 +1,165 @@
+{
+  "active": false,
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call n8n Workflow Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-05-19T05:31:41.886Z",
+  "id": "WKlEZjaqM4KcbVXj",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "ERP stock 2",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        820,
+        -120
+      ],
+      "id": "e98a3c64-5265-4316-9f38-a87f0d798abd",
+      "name": "When chat message received",
+      "webhookId": "618d88f3-fae7-4b78-bc99-170bea3dbc11"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        1280,
+        -120
+      ],
+      "id": "720d2e05-6e0d-4205-85c3-0a174bc022b7",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1000,
+        100
+      ],
+      "id": "78a74e15-209c-4bb6-a970-d2e5f89a4228",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "ASKNtk66h4eMwYob",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.sessionId || 'stock-check' }}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1160,
+        100
+      ],
+      "id": "007fafb2-aa8a-4798-9983-a52b14e63a38",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "description": "Call this tool to get/check:\n1. warehouses name\n2. item name, count and balance\n3, inventory",
+        "workflowId": {
+          "__rl": true,
+          "value": "JJ0sk4C09DUzz07L",
+          "mode": "list",
+          "cachedResultName": "ERP stock"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1380,
+        100
+      ],
+      "id": "fb6d5dc2-29f6-4193-bbb2-9f75a5e6112e",
+      "name": "Call n8n Workflow Tool"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2025-05-14T09:17:05.251Z",
+      "updatedAt": "2025-05-14T09:17:05.251Z",
+      "id": "kraijyWM4X3S7ISz",
+      "name": "try"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2025-07-01T10:16:01.000Z",
+  "versionId": "9461d407-be97-459b-b0d3-17e4937e5cd5"
+}
