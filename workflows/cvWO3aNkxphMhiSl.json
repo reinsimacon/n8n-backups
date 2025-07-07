@@ -1,0 +1,290 @@
+{
+  "active": false,
+  "connections": {
+    "Extract Data": {
+      "main": [
+        [
+          {
+            "node": "Read Excel File",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Read Excel File": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to Excel": {
+      "main": [
+        [
+          {
+            "node": "Write File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Trigger (IMAP)": {
+      "main": [
+        [
+          {
+            "node": "Extract Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Verify Data (Set)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verify Data (Set)": {
+      "main": [
+        [
+          {
+            "node": "Summarize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize": {
+      "main": [
+        [
+          {
+            "node": "Convert to Excel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-07-03T07:15:10.823Z",
+  "id": "cvWO3aNkxphMhiSl",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Appending-File",
+  "nodes": [
+    {
+      "parameters": {
+        "functionCode": "const raw = $json.headers?.date || '';\nconst formatted = new Date(raw).toISOString(); // or custom format\n\nreturn {\n  email: $json.from?.value?.[0]?.address || '',\n  name: $json.from?.value?.[0]?.name || '',\n  header_date: formatted,\n};\n"
+      },
+      "id": "97afa7f1-2f58-4839-a1b4-a7a7618d1ac3",
+      "name": "Extract Data",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -700,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "filePath": "/files/Intern-Applicants.xlsx",
+        "dataPropertyName": "oldData"
+      },
+      "id": "45c6a510-e906-47ee-8c07-24ed55d44cd9",
+      "name": "Read Excel File",
+      "type": "n8n-nodes-base.readBinaryFile",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        240
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "operation": "toFile",
+        "binaryPropertyName": "oldData",
+        "options": {
+          "fileName": "Intern-Applicants.xlsx"
+        }
+      },
+      "id": "bc0f3b08-ed5d-4eb4-a49c-2bc455bcf4bb",
+      "name": "Convert to Excel",
+      "type": "n8n-nodes-base.spreadsheetFile",
+      "typeVersion": 1,
+      "position": [
+        840,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "fileName": "/files/Intern-Applicants.xlsx",
+        "dataPropertyName": "oldData",
+        "options": {}
+      },
+      "id": "a3af1a1b-40d5-493d-9aba-12fa35996b12",
+      "name": "Write File",
+      "type": "n8n-nodes-base.writeBinaryFile",
+      "typeVersion": 1,
+      "position": [
+        1060,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "postProcessAction": "nothing",
+        "format": "resolved",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2,
+      "position": [
+        -920,
+        320
+      ],
+      "id": "3d8447d9-1ce1-4a2c-9127-cc8f8f47f3cd",
+      "name": "Email Trigger (IMAP)",
+      "credentials": {
+        "imap": {
+          "id": "UIfYVgUrFbBRaDY0",
+          "name": "internship@comfac-it.com(IMAP)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "xlsx",
+        "binaryPropertyName": "oldData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -260,
+        240
+      ],
+      "id": "0baf2d02-50f7-4ed7-a086-418fe6c7e9d9",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        -40,
+        320
+      ],
+      "id": "11ab4098-5f7c-421a-9b86-f7d826817178",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9b4a16e0-4107-47da-bc93-94236b0bef0b",
+              "name": "email",
+              "value": "={{ $json.email }}",
+              "type": "string"
+            },
+            {
+              "id": "909bac50-fc4b-4a31-8e56-ca724e715aa7",
+              "name": "name",
+              "value": "={{ $json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "3cb436b3-bc5c-4e1a-bcf9-9261fa73388a",
+              "name": "header_date",
+              "value": "={{ $json.header_date }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        180,
+        320
+      ],
+      "id": "c9dab9e9-8788-4fb9-80c2-e3c54bc226e8",
+      "name": "Verify Data (Set)"
+    },
+    {
+      "parameters": {
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "aggregation": "append",
+              "field": "name, email, header_date"
+            }
+          ]
+        },
+        "fieldsToSplitBy": "header_date, email,  name",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.summarize",
+      "typeVersion": 1.1,
+      "position": [
+        420,
+        520
+      ],
+      "id": "9e34aaed-29b6-4cbd-8414-9605b154cc23",
+      "name": "Summarize"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": {
+    "node:Email Trigger (IMAP)": {
+      "lastMessageUid": 12
+    }
+  },
+  "tags": [
+    {
+      "createdAt": "2025-06-30T08:20:57.669Z",
+      "updatedAt": "2025-06-30T08:20:57.669Z",
+      "id": "ErU0gqWvngFtTUtJ",
+      "name": "prod"
+    }
+  ],
+  "triggerCount": 1,
+  "updatedAt": "2025-07-07T03:38:16.000Z",
+  "versionId": "8cdb82ae-b1f9-4da4-872a-253cd8c830e6"
+}
