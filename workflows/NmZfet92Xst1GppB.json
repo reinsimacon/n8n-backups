@@ -1,0 +1,160 @@
+{
+  "active": false,
+  "connections": {
+    "Webhook (AI Agent Entry)": {
+      "main": [
+        [
+          {
+            "node": "Validate Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Input": {
+      "main": [
+        [
+          {
+            "node": "Get Stock Ledger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Stock Ledger": {
+      "main": [
+        [
+          {
+            "node": "Extract Balance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Balance": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "createdAt": "2025-05-15T08:56:38.813Z",
+  "id": "NmZfet92Xst1GppB",
+  "meta": null,
+  "name": "AI-Agent Stock Ledger Entry",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "check-stock-balance",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "17a9f1f1-a4fa-44e7-bec0-0a47daf5b3e4",
+      "name": "Webhook (AI Agent Entry)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "474c36b0-db51-443f-a3e7-d3c675d3ca2e"
+    },
+    {
+      "parameters": {
+        "functionCode": "const { item_code, warehouse } = $json.body;\n\nif (!item_code || !warehouse) {\n  throw new Error(\"Missing required fields: item_code and warehouse\");\n}\n\nreturn [{ json: { item_code, warehouse } }];\n"
+      },
+      "id": "f79d18be-7568-4091-a47c-430ed5c76c87",
+      "name": "Validate Input",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        200,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "erpNextApi",
+        "requestMethod": "POST",
+        "url": "http://192.168.20.119/api/method/frappe.desk.query_report.run",
+        "jsonParameters": true,
+        "options": {},
+        "bodyParametersJson": {
+          "report_name": "Stock Ledger",
+          "filters": {
+            "from_date": "2025-01-01",
+            "to_date": "={{ new Date().toISOString().slice(0,10) }}",
+            "item_code": "={{ $json.item_code }}",
+            "warehouse": "={{ $json.warehouse }}"
+          }
+        }
+      },
+      "id": "256fc3fe-496a-420d-a1f8-d08e445b326f",
+      "name": "Get Stock Ledger",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [
+        400,
+        0
+      ],
+      "credentials": {
+        "erpNextApi": {
+          "id": "DHcizRN7kwdJXqZ2",
+          "name": "ERPNext account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "\nconst result = $json.result || [];\nif (result.length === 0) {\n  return [{ json: { balance: 0, note: \"No stock entries found.\" } }];\n}\nconst lastEntry = result[result.length - 1];\nreturn [{\n  json: {\n    item_code: $json.filters.item_code,\n    warehouse: $json.filters.warehouse,\n    balance: parseFloat(lastEntry.balance_qty || 0)\n  }\n}];\n"
+      },
+      "id": "003d9a87-c649-4102-a02e-c5dbd993b81f",
+      "name": "Extract Balance",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        600,
+        0
+      ]
+    }
+  ],
+  "pinData": {
+    "Webhook (AI Agent Entry)": [
+      {
+        "json": {
+          "headers": {
+            "host": "2a12-120-28-100-219.ngrok-free.app",
+            "user-agent": "curl/7.81.0",
+            "content-length": "103",
+            "accept": "*/*",
+            "content-type": "application/json",
+            "x-forwarded-for": "120.28.100.219",
+            "x-forwarded-host": "2a12-120-28-100-219.ngrok-free.app",
+            "x-forwarded-proto": "https",
+            "accept-encoding": "gzip"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "item_code": "MARINE PLYWOOD 18MM(3/4)X4X8",
+            "warehouse": "Plant Cabuyao Warehouse - CSC"
+          },
+          "webhookUrl": "https://2a12-120-28-100-219.ngrok-free.app/webhook-test/check-stock-balance",
+          "executionMode": "test"
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-07-01T10:09:45.000Z",
+  "versionId": "9f78e0a8-64cb-4698-bfff-6bd32a718358"
+}
