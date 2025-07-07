@@ -1,0 +1,45 @@
+{
+  "active": false,
+  "connections": {},
+  "createdAt": "2025-05-16T03:54:00.413Z",
+  "id": "DQ302RgaNuzhhZAL",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "stock-check-tool",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "47521e7c-5e5c-4b48-b467-4d424950c2f1",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "94716e82-0e8a-4021-a686-2dfac8ae841e",
+      "name": "Webhook",
+      "webhookId": "47521e7c-5e5c-4b48-b467-4d424950c2f1"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2025-05-14T09:17:05.251Z",
+      "updatedAt": "2025-05-14T09:17:05.251Z",
+      "id": "kraijyWM4X3S7ISz",
+      "name": "try"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2025-07-01T10:16:07.000Z",
+  "versionId": "9d4faef1-7d99-48d7-a725-2207c5a97a03"
+}
