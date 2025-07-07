@@ -1,0 +1,265 @@
+{
+  "active": false,
+  "connections": {
+    "Daily Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Warehouses",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Warehouses": {
+      "main": [
+        [
+          {
+            "node": "Split Warehouses",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Warehouses": {
+      "main": [
+        [
+          {
+            "node": "Map Items to Warehouses",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Map Items to Warehouses": {
+      "main": [
+        [
+          {
+            "node": "Get Stock Ledger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Stock Ledger": {
+      "main": [
+        [
+          {
+            "node": "Check Balance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Balance": {
+      "main": [
+        [
+          {
+            "node": "Create PR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create PR": {
+      "main": [
+        [
+          {
+            "node": "Submit PR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-05-15T07:58:43.107Z",
+  "id": "mSvCKj7qz8b7k2n5",
+  "meta": null,
+  "name": "Stock-PR",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "9267726d-86c2-48ed-b89a-d91d80a892d9",
+      "name": "Daily Trigger",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "erpNextApi",
+        "url": "http://192.168.20.119/api/resource/Warehouse",
+        "jsonParameters": true,
+        "options": {}
+      },
+      "id": "78713a1c-b964-4e1e-86f3-fba45a1588e5",
+      "name": "Get Warehouses",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [
+        200,
+        0
+      ],
+      "credentials": {
+        "erpNextApi": {
+          "id": "DHcizRN7kwdJXqZ2",
+          "name": "ERPNext account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "90ad2578-c0bc-401d-9ff5-91db8981c0af",
+      "name": "Split Warehouses",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 1,
+      "position": [
+        400,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [\n  { json: { item_code: 'MARINE PLYWOOD 18MM(3/4)4X8', warehouse: $json.name } },\n  { json: { item_code: 'TONER EP80X', warehouse: $json.name } }\n];"
+      },
+      "id": "b7dcca19-368c-4858-973d-5b8d4d1c6447",
+      "name": "Map Items to Warehouses",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        600,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "erpNextApi",
+        "requestMethod": "POST",
+        "url": "http://192.168.20.119/api/method/frappe.desk.query_report.run",
+        "jsonParameters": true,
+        "options": {},
+        "bodyParametersJson": {
+          "report_name": "Stock Ledger",
+          "filters": {
+            "from_date": "2025-01-01",
+            "to_date": "={{ new Date().toISOString().slice(0,10) }}",
+            "item_code": "={{ $json.item_code }}",
+            "warehouse": "={{ $json.warehouse }}"
+          }
+        }
+      },
+      "id": "2e3f4349-5290-476b-bb47-229cdbb52f64",
+      "name": "Get Stock Ledger",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [
+        800,
+        0
+      ],
+      "credentials": {
+        "erpNextApi": {
+          "id": "DHcizRN7kwdJXqZ2",
+          "name": "ERPNext account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "const data = items[0].json.data;\nif (!data || data.length === 0) return [];\nconst lastEntry = data[data.length - 1];\nconst balance = parseFloat(lastEntry['balance_qty'] || 0);\nif (balance <= 10) {\n  return [{ json: { ...items[0].json, balance } }];\n}\nreturn [];"
+      },
+      "id": "c2d0ff95-6195-4517-a925-bf25aaf42a22",
+      "name": "Check Balance",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1000,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "erpNextApi",
+        "requestMethod": "POST",
+        "url": "http://192.168.20.119/api/resource/Purchase Request",
+        "jsonParameters": true,
+        "options": {},
+        "bodyParametersJson": {
+          "company": "Cornersteel Systems Corporation",
+          "schedule_date": "={{ new Date().toISOString() }}",
+          "items": [
+            {
+              "item_code": "={{ $json.item_code }}",
+              "qty": "={{ 10 - $json.balance }}",
+              "warehouse": "={{ $json.warehouse }}"
+            }
+          ]
+        }
+      },
+      "id": "e846bf88-afa3-4644-b239-1035e7764581",
+      "name": "Create PR",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        0
+      ],
+      "credentials": {
+        "erpNextApi": {
+          "id": "DHcizRN7kwdJXqZ2",
+          "name": "ERPNext account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "erpNextApi",
+        "requestMethod": "PUT",
+        "url": "={{$json.message.name ? `http://192.168.20.119/api/resource/Purchase Request/${$json.message.name}` : ''}}",
+        "jsonParameters": true,
+        "options": {},
+        "bodyParametersJson": {
+          "docstatus": 1
+        }
+      },
+      "id": "f4d3af02-d14f-4017-a2f0-0413c23863ef",
+      "name": "Submit PR",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [
+        1400,
+        0
+      ],
+      "credentials": {
+        "erpNextApi": {
+          "id": "DHcizRN7kwdJXqZ2",
+          "name": "ERPNext account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-07-01T10:16:11.000Z",
+  "versionId": "e22a41a2-d592-4aea-adb9-556482cc0117"
+}
