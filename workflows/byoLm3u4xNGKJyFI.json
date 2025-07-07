@@ -1,0 +1,95 @@
+{
+  "active": false,
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Local Deepseek Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-07-04T02:50:03.259Z",
+  "id": "byoLm3u4xNGKJyFI",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -460,
+        -120
+      ],
+      "id": "6d171377-9a90-4ea5-b36f-10d5338a38c0",
+      "name": "When chat message received",
+      "webhookId": "9c9de61f-d123-4c04-9209-b77e651f466d"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        -180,
+        -120
+      ],
+      "id": "97e8498d-2ca4-419c-962f-11d4855d3c67",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -280,
+        100
+      ],
+      "id": "0c045343-74e6-4805-b616-5cabbbcec023",
+      "name": "Local Deepseek Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "LNyCQeYixvpj6rqX",
+          "name": "OpenAi account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-07-04T02:58:24.000Z",
+  "versionId": "5b7ec9a5-2b97-457c-b97a-70712bbbb35e"
+}
