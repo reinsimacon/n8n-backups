@@ -1,0 +1,149 @@
+{
+  "active": false,
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Draft": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-05-15T02:41:32.372Z",
+  "id": "KgJ5T3LGRzhTqdW2",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "AI Agent - Gmail (Creating Draft)",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "d2fc39b6-a9b8-490e-997a-65966d2583ae",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "k8OKsZiyRAOZh9gf",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Write a reply to the following email, then add it as a draft to the email thread:\n<email>\nFrom: {{ $json.from.text }}\nSubject: {{ $json.headers.subject }}\nMessage:  {{ $json.textAsHtml }}\n</email>",
+        "options": {
+          "systemMessage": "=#role\nYou are an AI assistant specializing in replying to incoming emails to Rein's Gmail email inbox.\n\n#capabilities and limitations\nYou cannot send emails, you can create email drafts. Do not hallucinate.\n\n#reponse\nReply in a casual, modern, professional, concise writing style. Write Email drafts in plaintext, bot HTML format. You should sound like Rein. Here are examples of Rein's voice:\n<example>\nHello John,\n\nI hope you're doing well.\n\nThe IP address of the Nextcloud server is manually configured, including the static IP, netmask, gateway, and DNS settings.\n\nThe initial issue was that Nextcloud became inaccessible from external/public networks. Upon investigation, it was discovered that the primary cause was a network failure due to the switch being improperly plugged in. This triggered a failover to the backup network. Once the issue was identified, the switch for the primary network was reconnected and powered back on. However, despite restoring the primary network, external access to Nextcloud remained unavailable.\n\nTo verify if the network had reverted to the original setup, \"What is my IP\" was used to check the public IP. After confirming this, a full backup was performed, followed by a restart of the Nextcloud containers in an attempt to resolve the external access issue. However, after the backup and restart, Nextcloud encountered an \"Internal Server Error,\" preventing access entirely.\n\n\nRegard,\n\nRein Simacon\nCornersteel Systems Corporation\nSystems Administrator\n</example>\n<example>\nHi John,\n\nRequest for Update on Ticket Status. We'd like to request an update on the status of the submitted ticket regarding the Nextcloud AIO instance issue. Additionally, could you please provide the ticket link so we can track its progress?\n\nLooking forward to your response. Thank you.\n\nRegard,\n\nRein Simacon\nCornersteel Systems Corporation\nSystems Administrator\n</example>\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        220,
+        0
+      ],
+      "id": "83a52c25-f1a2-48c1-8124-16b821f50c70",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        80,
+        200
+      ],
+      "id": "565ca516-b321-44de-9b06-e18c01d13c14",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "ASKNtk66h4eMwYob",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ $fromAI('subject') }}",
+        "message": "={{ $fromAI('message') }}",
+        "options": {
+          "threadId": "={{ $json.threadId }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        380,
+        220
+      ],
+      "id": "f7c83114-7c21-489a-80ec-3738c560d613",
+      "name": "Create Draft",
+      "webhookId": "6819817f-4580-49d0-b84a-fddd911e59e0",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "k8OKsZiyRAOZh9gf",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-07-01T10:09:01.000Z",
+  "versionId": "7a5f8e5d-5b6b-4e88-b9f5-67821fa472eb"
+}
