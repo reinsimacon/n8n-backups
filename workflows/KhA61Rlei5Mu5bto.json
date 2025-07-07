@@ -1,0 +1,315 @@
+{
+  "active": false,
+  "connections": {
+    "Email Trigger (IMAP)": {
+      "main": [
+        [
+          {
+            "node": "Check Attachments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Attachments": {
+      "main": [
+        [
+          {
+            "node": "Extract First Name",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract First Name1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract First Name": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract First Name1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-07-01T05:37:35.161Z",
+  "id": "KhA61Rlei5Mu5bto",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "AI-Agent Mailcow",
+  "nodes": [
+    {
+      "parameters": {
+        "postProcessAction": "nothing",
+        "format": "resolved",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2,
+      "position": [
+        0,
+        -160
+      ],
+      "id": "3dbf5825-ab72-4b9e-8956-c48fc53eb2e9",
+      "name": "Email Trigger (IMAP)",
+      "credentials": {
+        "imap": {
+          "id": "UIfYVgUrFbBRaDY0",
+          "name": "internship@comfac-it.com(IMAP)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b8ac9cee-e7e2-4cee-af8d-ddbe793fc99c",
+              "leftValue": "={{ $('Email Trigger (IMAP)').item.binary.attachment_0 }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "bcbe2e32-cb80-469a-859a-bb7c879fe785",
+      "name": "Check Attachments",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        220,
+        -160
+      ],
+      "notesInFlow": true,
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are Rein Simacon, replying to a new email. Read the message content below and write a professional response based on its context — whether it’s about internship applications, scheduling interviews, technical support, or general inquiries.\n\nYour response must:\n- Use the sender’s first name in the greeting.\n- Insert a blank line between greeting, body, and signature.\n- Use a professional and concise tone.\n- Output clean plain text (no HTML or markdown).\n- Avoid automatic footers like “sent by n8n” or anything extra.\n\n**Internship Application Rules (CV Attached):**\n- If the subject or message body mentions \"internship\", treat it as an internship application\n- If attachments are present, acknowledge it as received.\n- If the email mentions a specific visit/interview time (e.g., “I will be there at 11:30 AM”), then:\n  - Acknowledge it.\n  - Remind them to bring a **hard copy of their CV** on their visit.\n- Always include Rein’s interview availability in the reply:\n\n  Mon–Wed: 11:00 AM – 12:00 PM and 2:00 PM – 5:00 PM  \n  Thu–Fri: Anytime  \n  Sat–Sun: Not available\n\n**Context:**  \nFirst Name: Hello {{ $json.firstName }},  \n\nEmail to reply to:  \nFrom: {{ $('Email Trigger (IMAP)').item.json.from.text }}  \nSubject: {{ $('Email Trigger (IMAP)').item.json.headers.subject }}  \nMessage: {{ $('Email Trigger (IMAP)').item.json.text }}\n",
+        "options": {
+          "systemMessage": "=#role: You are a professional assistant that writes and formats replies to Rein Simacon’s Gmail inbox.\n#capabilities and limitations:\n- Output plain-text email replies.\n- Avoid automatic footers like “sent by n8n” or anything extra.\n- Structure with line breaks between greeting, body, and signature.\n- Detect intent (e.g., internship, inquiry, interview, technical issues).\n- If a resume/CV file is attached (filename contains \"cv\" or \"resume\"), acknowledge it.\n- If the sender proposes a visit time (e.g., “I’ll be there at 11:30 AM”), acknowledge it and say: “Please also bring a hard copy of your CV when you visit.”\n- Always include Rein’s interview availability in the reply:\n\n  Mon–Wed: 11:00 AM – 12:00 PM and 2:00 PM – 5:00 PM  \n  Thu–Fri: Anytime  \n  Sat–Sun: Not available\n\n**Reply:**  \nThank you for providing your CV. We will proceed with the interview process.   \n\nRegards,  \nRein Simacon  \nCornersteel Systems Corporation  \nSystems Administrator\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        660,
+        -460
+      ],
+      "id": "84c834f1-30da-4570-a4d8-2c60a62d4509",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        748,
+        -240
+      ],
+      "id": "34f1c001-82aa-4529-80c9-88d606d92a98",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "ASKNtk66h4eMwYob",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "//const emailBody = $node[\"Gmail Trigger\"].json.text || \"\";\nconst emailBody = $input.first().json.text\n// Try to extract a name from common intro phrases\nconst nameMatch = emailBody.match(/(?:my name is|i am|i’m)\\s+([A-Z][a-z]+(?:\\s+[A-Z][a-z]+)?)/i);\n\n// Default fallback if name is not found\nconst firstName = nameMatch ? nameMatch[1].split(\" \")[0] : \"there\";\n\nreturn {\n  json: {\n    firstName,\n  },\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        -360
+      ],
+      "id": "2fd6cff8-7f3d-4363-8a69-c4d7cd46b001",
+      "name": "Extract First Name"
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $('Check Attachments').item.json.to.value[0].address }}",
+        "toEmail": "={{ $('Check Attachments').item.json.from.value[0].address }}",
+        "subject": "=Re: {{ $('Email Trigger (IMAP)').item.json.subject }}",
+        "emailFormat": "text",
+        "text": "={{ $json.output }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1040,
+        -160
+      ],
+      "id": "ddfc8a2a-33c7-40a0-a4f2-b6752d2e2964",
+      "name": "Send Email",
+      "webhookId": "1f43d67a-bb9e-47c0-b7a0-74c47f5780d6",
+      "credentials": {
+        "smtp": {
+          "id": "GVO8L2ZgqhG3Lbew",
+          "name": "internship@comfac-it.com(SMTP)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are Rein Simacon, replying to a new email. Read the message content below and write a professional response based on its context — whether it’s about internship applications, scheduling interviews, technical support, or general inquiries.\n\nYour response must:\n- Use the sender’s first name in the greeting.\n- Insert a blank line between greeting, body, and signature.\n- Use a professional and concise tone.\n- Output clean plain text (no HTML or markdown).\n- Avoid automatic footers like “sent by n8n” or anything extra.\n\n**Internship Application Rules (No CV Attachment):**\n- If attachments are present:\n  - If a file with \"cv\" or \"resume\" in its name is attached, acknowledge it as received.\n  - If no such file is found or attachment_check is false, ask them to send their CV.\n- If no attachments at all:\n  - Ask them to send their CV to proceed.\n- If the email mentions a specific visit/interview time (e.g., “I will be there at 11:30 AM”), then:\n  - Acknowledge it.\n  - Remind them to bring a **hard copy of their CV** on their visit.\n\n**Context:**  \nFirst Name: Hello {{ $json.firstName }},  \n\nEmail to reply to:  \nFrom: {{ $('Email Trigger (IMAP)').item.json.from.text }}  \nSubject: {{ $('Email Trigger (IMAP)').item.json.headers.subject }}  \nMessage: {{ $('Email Trigger (IMAP)').item.json.text }}\n",
+        "options": {
+          "systemMessage": "=#role: You are a professional assistant that writes and formats replies to Rein Simacon’s Gmail inbox.\n#capabilities and limitations:\n- Output plain-text email replies.\n- Avoid automatic footers like “sent by n8n” or anything extra.\n- Structure with line breaks between greeting, body, and signature.\n- Detect intent (e.g., internship, inquiry, interview, technical issues).\n- If no attachments are found or if the file doesn't contain \"cv\" or \"resume\", ask them to send their CV.\n- If the sender proposes a visit time (e.g., “I’ll be there at 11:30 AM”), acknowledge it and say: “Please also bring a hard copy of your CV when you visit.”\n\n**Reply:**  \nPlease send a copy of your CV so we can proceed with your internship application.  \nOnce we have received your CV, we will provide you with the next steps for scheduling an interview.  \n\nRegards,  \nRein Simacon  \nCornersteel Systems Corporation  \nSystems Administrator\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        660,
+        40
+      ],
+      "id": "1f25ab1c-6cb0-40ea-b461-ee5e9bf96a5e",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "jsCode": "//const emailBody = $node[\"Gmail Trigger\"].json.text || \"\";\nconst emailBody = $input.first().json.text\n// Try to extract a name from common intro phrases\nconst nameMatch = emailBody.match(/(?:my name is|i am|i’m)\\s+([A-Z][a-z]+(?:\\s+[A-Z][a-z]+)?)/i);\n\n// Default fallback if name is not found\nconst firstName = nameMatch ? nameMatch[1].split(\" \")[0] : \"there\";\n\nreturn {\n  json: {\n    firstName,\n  },\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        40
+      ],
+      "id": "aff20fb7-90ed-4f1a-87b2-5a0d48d7fd13",
+      "name": "Extract First Name1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        748,
+        260
+      ],
+      "id": "f2ff0065-6f57-4ebd-bcf3-fb4e4da70df7",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "ASKNtk66h4eMwYob",
+          "name": "OpenAi account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2025-06-30T08:20:57.669Z",
+      "updatedAt": "2025-06-30T08:20:57.669Z",
+      "id": "ErU0gqWvngFtTUtJ",
+      "name": "prod"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2025-07-03T10:35:41.000Z",
+  "versionId": "68e9ce11-0b40-431c-b754-6a2b7411a35e"
+}
