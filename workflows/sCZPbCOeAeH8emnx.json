@@ -1,0 +1,223 @@
+{
+  "active": false,
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Extract First Name",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "auto-send-reply",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "auto-send-reply": {
+      "main": [
+        [
+          {
+            "node": "Gmail-Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail-Reply": {
+      "main": [
+        [
+          {
+            "node": "Gmail-markAsRead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract First Name": {
+      "main": [
+        [
+          {
+            "node": "auto-send-reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-06-25T02:33:36.388Z",
+  "id": "sCZPbCOeAeH8emnx",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "AI Agent - Gmail (auto-send-reply)",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "unit": "minutes"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "readStatus": "unread"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "eb00ebe9-fdab-4914-82df-5315ab98d110",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "QO3a99AfoDOfNzrj",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        528,
+        220
+      ],
+      "id": "603a5645-9603-45ca-8d83-c0933f255a71",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "ASKNtk66h4eMwYob",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are Rein Simacon, replying to a new email. Read the message content below and write a professional response based on its context — whether it’s about internship applications, scheduling interviews, technical support, or general inquiries.\n\nYour response must:\n- Use the sender’s first name in the greeting\n- Insert a blank line between greeting, body, and signature\n- Use a professional and concise tone\n- Output clean plain text (no HTML or markdown)\n- Avoid automatic footers like “sent by n8n” or anything extra\n\n**Internship Application Rules:**\n- If the subject or message body mentions \"internship\", treat it as an internship application\n- Always include Rein’s interview availability in the reply:\n\n  Mon–Wed: 11:00 AM – 12:00 PM and 2:00 PM – 5:00 PM  \n  Thu–Fri: Anytime  \n  Sat–Sun: Not available\n\n- Regardless of attachments, always request the following internship requirements:\n  - Soft copy of Resume or CV\n  - Memorandum of Agreement (MOA)\n  - Total number of internship hours required by the school\n  - Any other relevant documents\n  - Mention that hard copies must also be submitted upon acceptance\n\n-If the applicant has already sent the internship hours or other details\n -Acknowledge the received details (e.g., “Thank you for providing the internship requirement details”)\n-Then follow up with:\n -A polite reminder to still send the required documents (if any are missing), OR\n -If all have been received, simply say:\n “Looking forward to our interview. Please let me know your preferred time.”\n\n----\n\nContext:  \nFirst Name: Hello {{ $node[\"Extract First Name\"].json[\"firstName\"] }}\n\nEmail to reply to:  \nFrom: {{ $node[\"Gmail Trigger\"].json[\"from\"][\"text\"] }}  \nSubject: {{ $node[\"Gmail Trigger\"].json[\"headers\"][\"subject\"] }}  \nMessage: {{ $node[\"Gmail Trigger\"].json[\"text\"] }}\n",
+        "options": {
+          "systemMessage": "=#role\nYou are a professional assistant that writes and formats replies to Rein Simacon’s Gmail inbox.\n\n#capabilities and limitations\nYou must:\n- Output plain-text email replies\n- Structure with line breaks between greeting, body, and signature\n- Detect intent: e.g., internship, inquiry, interview, technical issues\n- Always include Rein's interview availability in internship-related emails\n- If no resume is attached and it's an internship inquiry, ask them to attach their resume.\n\n#interview_availability\nMon–Wed: 11:00 AM – 12:00 PM and 2:00 PM – 5:00 PM  \nThu–Fri: Anytime  \nSat–Sun: Not available\n\n#response\nAlways close with:\n\nRegards,  \nRein Simacon  \nCornersteel Systems Corporation  \nSystems Administrator\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        440,
+        0
+      ],
+      "id": "10e0a776-2a2f-4451-a489-37c643c46df2",
+      "name": "auto-send-reply"
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $node[\"Gmail Trigger\"].json[\"id\"] }}\n",
+        "emailType": "text",
+        "message": "={{ $node[\"auto-send-reply\"].json[\"output\"] }}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        816,
+        0
+      ],
+      "id": "e8b76dc3-18b5-4613-86c4-42789eb1b476",
+      "name": "Gmail-Reply",
+      "webhookId": "7838b923-5310-4629-907d-4c8fa199f2f9",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "QO3a99AfoDOfNzrj",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "markAsRead",
+        "messageId": "={{ $node[\"Gmail Trigger\"].json[\"id\"] }}"
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1036,
+        0
+      ],
+      "id": "099599bc-bdc3-496b-875a-e2c80c68e517",
+      "name": "Gmail-markAsRead",
+      "webhookId": "c0c27869-4901-432c-b4b6-1524e66db4e7",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "QO3a99AfoDOfNzrj",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const emailBody = $node[\"Gmail Trigger\"].json.text || \"\";\n\n// Try to extract a name from common intro phrases\nconst nameMatch = emailBody.match(/(?:my name is|this is|i am|i’m)\\s+([A-Z][a-z]+(?:\\s+[A-Z][a-z]+)?)/i);\n\n// Default fallback if name is not found\nconst firstName = nameMatch ? nameMatch[1].split(\" \")[0] : \"there\";\n\nreturn {\n  json: {\n    firstName,\n  },\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ],
+      "id": "03c3a364-96cd-4c65-b119-e78621333beb",
+      "name": "Extract First Name"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": {
+    "node:Gmail Trigger": {
+      "Gmail Trigger": {
+        "lastTimeChecked": 1750990741,
+        "possibleDuplicates": [
+          "197af2e8ad4bccd4"
+        ]
+      }
+    }
+  },
+  "tags": [
+    {
+      "createdAt": "2025-06-27T03:53:10.093Z",
+      "updatedAt": "2025-06-27T03:53:10.093Z",
+      "id": "AiEsGFwNfKxCHLlu",
+      "name": "development"
+    }
+  ],
+  "triggerCount": 1,
+  "updatedAt": "2025-07-01T10:08:27.000Z",
+  "versionId": "8ffce0ca-f7c7-4389-b126-348299f915fd"
+}
