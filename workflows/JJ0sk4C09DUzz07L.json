@@ -1,0 +1,168 @@
+{
+  "active": false,
+  "connections": {
+    "Get Warehouses": {
+      "main": [
+        [
+          {
+            "node": "Get Stock Ledger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Stock Ledger": {
+      "main": [
+        [
+          {
+            "node": "Check Balance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Get Warehouses",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Balance": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-05-19T05:30:56.728Z",
+  "id": "JJ0sk4C09DUzz07L",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "ERP stock",
+  "nodes": [
+    {
+      "parameters": {
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "erpNextApi",
+        "url": "http://192.168.20.119/api/resource/Warehouse",
+        "jsonParameters": true,
+        "options": {}
+      },
+      "id": "09f3cc5d-9272-4d06-897f-7afe63b61e2f",
+      "name": "Get Warehouses",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [
+        260,
+        -240
+      ],
+      "credentials": {
+        "erpNextApi": {
+          "id": "DHcizRN7kwdJXqZ2",
+          "name": "ERPNext account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "erpNextApi",
+        "requestMethod": "POST",
+        "url": "http://192.168.20.119/api/method/frappe.desk.query_report.run",
+        "jsonParameters": true,
+        "options": {},
+        "bodyParametersJson": {
+          "report_name": "Stock Ledger",
+          "filters": {
+            "from_date": "2025-01-01",
+            "to_date": "={{ new Date().toISOString().slice(0,10) }}",
+            "item_code": "={{ $json.item_code }}",
+            "warehouse": "={{ $json.warehouse }}"
+          }
+        }
+      },
+      "id": "ecd9c197-136f-4c1a-9abd-4530d75bbdf5",
+      "name": "Get Stock Ledger",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [
+        480,
+        -240
+      ],
+      "credentials": {
+        "erpNextApi": {
+          "id": "DHcizRN7kwdJXqZ2",
+          "name": "ERPNext account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        40,
+        -240
+      ],
+      "id": "70422a99-81c0-4b78-8783-50b97ea5aa1a",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Group items by warehouse and aggregate actual_qty and qty_after_transaction\nconst warehouses = {};\n\nfor (const item of items) {\n  const { warehouse, item_code, actual_qty, qty_after_transaction } = item.json;\n\n  if (!warehouses[warehouse]) {\n    warehouses[warehouse] = [];\n  }\n\n  const existing = warehouses[warehouse].find(i => i.item_code === item_code);\n  if (existing) {\n    existing.actual_qty += actual_qty;\n    existing.qty_after_transaction += qty_after_transaction;\n  } else {\n    warehouses[warehouse].push({\n      item_code,\n      actual_qty,\n      qty_after_transaction\n    });\n  }\n}\n\n// Prepare output: include all items (not just top 5) per warehouse\nconst output = [];\nfor (const [warehouse, items] of Object.entries(warehouses)) {\n  output.push({\n    json: {\n      warehouse,\n      items // all items per warehouse, no slice\n    }\n  });\n}\n\nreturn output;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        920,
+        -240
+      ],
+      "id": "ec6fc1a1-645f-41c9-b6b9-b75ab6dd4870",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "jsCode": "const results = [];\n\nfor (const item of items) {\n  const entries = item.json.message?.result || [];\n  for (const row of entries) {\n    results.push({\n      json: {\n        item_code: row.item_code,\n        project: row.project,\n        warehouse: row.warehouse,\n        qty_after_transaction: row.qty_after_transaction,\n        actual_qty: row.actual_qty\n      }\n    });\n  }\n}\n\nreturn results;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        700,
+        -240
+      ],
+      "id": "3e205a07-f302-43b7-9fcc-fa80717b033c",
+      "name": "Check Balance"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2025-05-14T09:17:05.251Z",
+      "updatedAt": "2025-05-14T09:17:05.251Z",
+      "id": "kraijyWM4X3S7ISz",
+      "name": "try"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2025-07-01T10:16:02.000Z",
+  "versionId": "8f25de0b-dcac-4c15-b040-384cc519e25e"
+}
