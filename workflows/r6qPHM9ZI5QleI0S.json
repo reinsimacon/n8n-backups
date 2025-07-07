@@ -1,0 +1,322 @@
+{
+  "active": false,
+  "connections": {
+    "Email Trigger (IMAP)": {
+      "main": [
+        [
+          {
+            "node": "Check Attachments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Attachments": {
+      "main": [
+        [
+          {
+            "node": "Extract First Name",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract First Name1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract First Name": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract First Name1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-07-07T01:57:45.616Z",
+  "id": "r6qPHM9ZI5QleI0S",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "AI-Agent Mailcow (comfac-it)",
+  "nodes": [
+    {
+      "parameters": {
+        "postProcessAction": "nothing",
+        "format": "resolved",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2,
+      "position": [
+        -880,
+        -200
+      ],
+      "id": "26f41f28-ff46-4fce-a2c6-0e971d5d889b",
+      "name": "Email Trigger (IMAP)",
+      "credentials": {
+        "imap": {
+          "id": "UIfYVgUrFbBRaDY0",
+          "name": "internship@comfac-it.com(IMAP)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b8ac9cee-e7e2-4cee-af8d-ddbe793fc99c",
+              "leftValue": "={{ $('Email Trigger (IMAP)').item.binary.attachment_0 }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "e8f5c185-7dbc-4767-9e2c-bfc4977aed6e",
+      "name": "Check Attachments",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -660,
+        -200
+      ],
+      "notesInFlow": true,
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=# Role  \nYou are the Internship Admin.\n\n# Capabilities  \n- Write plain-text replies only  \n- Greet using the sender's first name  \n- Acknowledge CV/resume attachments  \n- Recognize interview schedules and give reminders to bring printed CV  \n- Always include:  \n  • Interview Availability  \n  • Internship scope summary  \n  • Contact list for departments  \n  • Document and signing instructions  \n  • Automated reply footer\n\n# Output Rules  \n- Use line breaks between greeting, body, and signature  \n- End message with: _This is an automated reply, thank you._  \n- Do NOT include signatures like “sent via n8n”\n\n# Footer  \nThis is an automated reply, thank you.\n\nRegards,  \nRein Simacon  \nCornersteel Systems Corporation  \nSystems Administrator\n",
+        "options": {
+          "systemMessage": "=You are the Internship Admin. Write a professional email response to the sender below. They are applying for an internship, and they have attached their CV.\n\nGuidelines:\n- Greet them using their first name: `Hello {{firstName}},`\n- Maintain a polite, professional tone.\n- Acknowledge the receipt of the attached CV/resume.\n- If a visit or interview time is mentioned, acknowledge it and remind them to bring a printed copy of their CV.\n- Always include Admin’s availability:\n\nMon–Wed: 11:00 AM – 12:00 PM and 2:00 PM – 5:00 PM  \nThu–Fri: Anytime  \nSat–Sun: Not available\n\n- End the message with:  \n  This is an automated reply, thank you.\n- Return only plain-text output with line breaks between sections.\n\nInclude the following internship information:\n\nThanks for applying. The Comfac/Cornersteel internship program covers:\n\n- Office Tools & Management: LibreOffice, Microsoft 365, document control  \n- ERPNext & Frappe: Cloud ERP system training & deployment  \n- Nextcloud: Self-hosted file collaboration (Docs, Sheets, Presentations)  \n- IT Infrastructure: pfSense, WireGuard VPN, Home Assistant, PLCs  \n- Development: Open-source tools, AI coding assistants, CI/CD  \n- Project Management & Systems Integration  \n- Sovereign Tech: Prioritizing local control and resilience over foreign cloud platforms  \n- No Allowances unless on special assigned projects  \n\nNext Steps: Schedule your interview or visit:  \n📍 536 Calbayog St, Mandaluyong (9:00 AM–2:00 PM)  \n📞 Call department contacts for faster coordination.  \n\nContacts:  \nIT – Edmund: 09235877287  \nSysAdmin – Rein: 09219852811, Chris: 09469562531, Jao: 09457731981, Carl: 09765697346  \nERP – Macy: 09560815855, Christian: 09764335706  \nAI/ML – Rafael: 09614351902  \nCom-Eng – RJ: 09173339852, Andrei: 09214820109  \nLaguna – Mike: 09228099384  \n\nBring: Internship agreement (or use our [template](https://docs.google.com/document/d/13h6FrKpaKSej721OgHHHC5myXvUh5N8EPymN4XBeXMw/edit?usp=sharing)).  \nSigning: Wednesdays 11 AM–12 PM or list Edmund as signer.  \nMap: https://goo.gl/maps/Ux25cKkBk2rDAf586\n\nThis is an automated reply, thank you.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        -220,
+        -500
+      ],
+      "id": "e31d8aa9-ac8f-4387-9a66-c649687a7a6a",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -220,
+        -280
+      ],
+      "id": "90be422e-b88d-4f8e-b6bf-baa4ad225dc2",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "ASKNtk66h4eMwYob",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "//const emailBody = $node[\"Gmail Trigger\"].json.text || \"\";\nconst emailBody = $input.first().json.text\n// Try to extract a name from common intro phrases\nconst nameMatch = emailBody.match(/(?:my name is|i am|i’m)\\s+([A-Z][a-z]+(?:\\s+[A-Z][a-z]+)?)/i);\n\n// Default fallback if name is not found\nconst firstName = nameMatch ? nameMatch[1].split(\" \")[0] : \"there\";\n\nreturn {\n  json: {\n    firstName,\n  },\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -440,
+        -400
+      ],
+      "id": "ca56e0dd-73c1-48d4-8573-6e439913e793",
+      "name": "Extract First Name"
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $('Check Attachments').item.json.to.value[0].address }}",
+        "toEmail": "={{ $('Check Attachments').item.json.from.value[0].address }}",
+        "subject": "=Re: {{ $('Email Trigger (IMAP)').item.json.subject }}",
+        "emailFormat": "text",
+        "text": "={{ $json.output }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        156,
+        -200
+      ],
+      "id": "1086ffab-f05f-467c-94cf-b8bc85bc1912",
+      "name": "Send Email",
+      "webhookId": "b0b81125-6b98-4a42-9f00-42af79957a5b",
+      "credentials": {
+        "smtp": {
+          "id": "GVO8L2ZgqhG3Lbew",
+          "name": "internship@comfac-it.com(SMTP)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are the Internship Admin. Write a professional reply to the email content below.\n\nGuidelines:\n- Greet using the sender’s first name.\n- Use a professional and polite tone.\n- If the email is not about internship applications, clarify that this email is used for internship coordination. If they are interested, ask them to send their CV and other requirements.\n- If attachments are missing or no CV/resume is found, ask the sender to send it.\n- If a visit/interview time is mentioned, acknowledge it and remind them to bring a printed copy of their CV.\n- Always include Admin availability:\n\nMon–Wed: 11:00 AM – 12:00 PM and 2:00 PM – 5:00 PM  \nThu–Fri: Anytime  \nSat–Sun: Not available\n\n- End the message with:  \n  This is an automated reply, thank you.\n- Format with line breaks between greeting, body, and closing.\n- Return plain text output only.\n\nInclude this internship information:\n\nThanks for your interest. The internship program includes:\n\n- Office Suite & ERPNext Training  \n- LibreOffice, Nextcloud, and productivity tools  \n- Firewall (pfSense), VPNs, containerization  \n- Open-source dev tools & AI-assisted coding  \n- Sovereign tech approach to self-hosting  \n- Note: No allowance unless on special assigned projects.\n\nSchedule Interview / Visit:  \n📍 536 Calbayog St, Mandaluyong (9:00 AM–2:00 PM)  \n📞 Call relevant contacts for coordination.\n\nKey Contacts:  \nIT – Edmund: 09235877287  \nSysAdmin – Rein: 09219852811  \nERP – Macy: 09560815855  \nAI – Rafael: 09614351902  \nLaguna – Mike: 09228099384  \n\nRequired: Send your CV and bring an internship agreement (or use our [template](https://docs.google.com/document/d/13h6FrKpaKSej721OgHHHC5myXvUh5N8EPymN4XBeXMw/edit?usp=sharing)).  \nSigning: Wednesdays 11 AM–12 PM or list Edmund as signer.  \nMap: https://goo.gl/maps/Ux25cKkBk2rDAf586\n\nThis is an automated reply, thank you.\n",
+        "options": {
+          "systemMessage": "=# Role  \nYou assist the Internship Admin by replying to new inquiries.\n\n# Capabilities  \n- Write clear, plain-text replies  \n- Acknowledge if CV/resume is missing and request it  \n- Detect if the email is not about internships and provide redirection  \n- Detect intent (internship, interview, question)  \n- Recognize visit times and provide interview reminders  \n- Always include:\n  • Admin availability  \n  • Summary of internship scope  \n  • Contacts per department  \n  • Document checklist  \n  • “This is an automated reply” line\n\n# Output Rules  \n- Use line breaks between greeting, body, and closing  \n- End message with: _This is an automated reply, thank you._  \n- Do not use HTML or markdown  \n- No tool-generated footers like “sent via n8n”\n\n# Sample Ending  \nThis is an automated reply, thank you.\n\nRegards,  \nRein Simacon  \nCornersteel Systems Corporation  \nSystems Administrator\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        -220,
+        0
+      ],
+      "id": "b1764e6b-aada-4dc4-a03a-ca289a0a6b2c",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "jsCode": "//const emailBody = $node[\"Gmail Trigger\"].json.text || \"\";\nconst emailBody = $input.first().json.text\n// Try to extract a name from common intro phrases\nconst nameMatch = emailBody.match(/(?:my name is|i am|i’m)\\s+([A-Z][a-z]+(?:\\s+[A-Z][a-z]+)?)/i);\n\n// Default fallback if name is not found\nconst firstName = nameMatch ? nameMatch[1].split(\" \")[0] : \"there\";\n\nreturn {\n  json: {\n    firstName,\n  },\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -440,
+        0
+      ],
+      "id": "656fb4ab-e4f7-41a5-b69c-d0003e8ef8d6",
+      "name": "Extract First Name1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -220,
+        200
+      ],
+      "id": "18b05265-f24a-4f94-86ba-43eb47488f8d",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "ASKNtk66h4eMwYob",
+          "name": "OpenAi account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2025-06-27T03:53:10.093Z",
+      "updatedAt": "2025-06-27T03:53:10.093Z",
+      "id": "AiEsGFwNfKxCHLlu",
+      "name": "development"
+    },
+    {
+      "createdAt": "2025-06-30T06:13:58.644Z",
+      "updatedAt": "2025-06-30T06:13:58.644Z",
+      "id": "GEGyGP2QU0EcPGht",
+      "name": "2"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2025-07-07T02:08:15.000Z",
+  "versionId": "6c122e99-3a37-43c0-8852-62feb3a6aa95"
+}
