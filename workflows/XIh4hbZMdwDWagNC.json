@@ -1,0 +1,347 @@
+{
+  "active": false,
+  "connections": {
+    "Extract Data": {
+      "main": [
+        [
+          {
+            "node": "Read Excel File",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Read Excel File": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to Excel": {
+      "main": [
+        [
+          {
+            "node": "Write File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Trigger (IMAP)": {
+      "main": [
+        [
+          {
+            "node": "Extract Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Verify Data (Set)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verify Data (Set)": {
+      "main": [
+        [
+          {
+            "node": "Summarize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize": {
+      "main": [
+        [
+          {
+            "node": "Convert to Excel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-07-07T02:38:51.909Z",
+  "id": "XIh4hbZMdwDWagNC",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Appending-File copy",
+  "nodes": [
+    {
+      "parameters": {
+        "functionCode": "const raw = $json.headers?.date || '';\nconst formatted = new Date(raw).toISOString(); // or custom format\n\nreturn {\n  email: $json.from?.value?.[0]?.address || '',\n  name: $json.from?.value?.[0]?.name || '',\n  header_date: formatted,\n};\n"
+      },
+      "id": "66f69600-5519-4a6a-9043-b1556ce6f786",
+      "name": "Extract Data",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -700,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "filePath": "/files/Intern-Applicants.xlsx",
+        "dataPropertyName": "oldData"
+      },
+      "id": "6bb2e03d-1581-4f75-b5e8-72ff2a1c13a7",
+      "name": "Read Excel File",
+      "type": "n8n-nodes-base.readBinaryFile",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        220
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "operation": "toFile",
+        "binaryPropertyName": "oldData",
+        "options": {
+          "fileName": "Intern-Applicants.xlsx"
+        }
+      },
+      "id": "b6bf4b78-3dd8-41b7-8474-32d02825bee8",
+      "name": "Convert to Excel",
+      "type": "n8n-nodes-base.spreadsheetFile",
+      "typeVersion": 1,
+      "position": [
+        620,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "fileName": "/files/Intern-Applicants.xlsx",
+        "dataPropertyName": "oldData",
+        "options": {}
+      },
+      "id": "dae059cf-f470-4d3d-9fa9-53e3fdf74d20",
+      "name": "Write File",
+      "type": "n8n-nodes-base.writeBinaryFile",
+      "typeVersion": 1,
+      "position": [
+        780,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "postProcessAction": "nothing",
+        "format": "resolved",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2,
+      "position": [
+        -1080,
+        320
+      ],
+      "id": "7a0a7bf2-cdac-474a-8460-8d8b4bb8cfa1",
+      "name": "Email Trigger (IMAP)",
+      "credentials": {
+        "imap": {
+          "id": "UIfYVgUrFbBRaDY0",
+          "name": "internship@comfac-it.com(IMAP)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "xlsx",
+        "binaryPropertyName": "oldData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -260,
+        220
+      ],
+      "id": "b837a65f-a698-432e-9e14-41c3e158538a",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        -40,
+        300
+      ],
+      "id": "9980d433-66b3-4ae7-8459-016e71a5b7fc",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9b4a16e0-4107-47da-bc93-94236b0bef0b",
+              "name": "email",
+              "value": "={{ $json.email }}",
+              "type": "string"
+            },
+            {
+              "id": "909bac50-fc4b-4a31-8e56-ca724e715aa7",
+              "name": "name",
+              "value": "={{ $json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "3cb436b3-bc5c-4e1a-bcf9-9261fa73388a",
+              "name": "header_date",
+              "value": "={{ $json.header_date }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ],
+      "id": "ccb3ab1c-4a64-4536-a627-6fe9845e1036",
+      "name": "Verify Data (Set)"
+    },
+    {
+      "parameters": {
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "aggregation": "append",
+              "field": "name, email, header_date"
+            }
+          ]
+        },
+        "fieldsToSplitBy": "header_date, email,  name",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.summarize",
+      "typeVersion": 1.1,
+      "position": [
+        360,
+        300
+      ],
+      "id": "cb2ef136-50f0-4db0-a3af-c460027acf6d",
+      "name": "Summarize"
+    },
+    {
+      "parameters": {
+        "content": "## Data Gatherer \n\n**Extracting MetaData** [Name, Email, and Header_Date]\n\n**Reading Files** from the disk and then convert it to JSON \n\n",
+        "height": 380,
+        "width": 900,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -780,
+        80
+      ],
+      "id": "fb59dd5c-f4d4-419f-b8e7-7f56fd23315e",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Getting Email\n\n**Self-hosted Email: (internship@comfac-it.com)**",
+        "height": 320,
+        "width": 360
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1180,
+        140
+      ],
+      "id": "9a46a97a-83bd-42b6-bce2-3bd203feb0c2",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Data Checker\n\n**Checking and Summarizing** Data content\n",
+        "height": 320,
+        "width": 360
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        160,
+        140
+      ],
+      "id": "b645e61d-66c4-4ee5-9a7c-db06d19ce3f9",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Finalizing Data\n\n**Converting and Wriing** Data content to the disk (~/docker-projects/n8n-docker/downloads)\n",
+        "height": 320,
+        "width": 360
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        560,
+        140
+      ],
+      "id": "cf8bdbc5-f1fe-44a4-99ea-364674974dab",
+      "name": "Sticky Note3"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2025-06-27T03:53:10.093Z",
+      "updatedAt": "2025-06-27T03:53:10.093Z",
+      "id": "AiEsGFwNfKxCHLlu",
+      "name": "development"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2025-07-07T02:55:42.000Z",
+  "versionId": "df153488-487f-4eed-b580-fdbd34fa3c7c"
+}
