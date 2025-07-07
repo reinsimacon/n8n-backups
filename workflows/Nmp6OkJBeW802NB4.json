@@ -1,0 +1,190 @@
+{
+  "active": false,
+  "connections": {
+    "Daily Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Stock Levels",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Stock Levels": {
+      "main": [
+        [
+          {
+            "node": "Split Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Items": {
+      "main": [
+        [
+          {
+            "node": "Filter Low Stock",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Low Stock": {
+      "main": [
+        [
+          {
+            "node": "Create PR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create PR": {
+      "main": [
+        [
+          {
+            "node": "Submit PR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-05-15T06:58:03.163Z",
+  "id": "Nmp6OkJBeW802NB4",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Stock ERPNEXT",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "e833f88c-e749-4841-ac10-14dfb9ba0162",
+      "name": "Daily Trigger",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        120,
+        -240
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "erpNextApi",
+        "url": "http://192.168.20.119/api/resource/Bin",
+        "options": {},
+        "queryParametersUi": {
+          "parameter": [
+            {
+              "name": "fields",
+              "value": "[\"item_code\",\"actual_qty\",\"warehouse\"]"
+            },
+            {
+              "name": "limit_page_length",
+              "value": "100"
+            }
+          ]
+        }
+      },
+      "name": "Fetch Stock Levels",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [
+        320,
+        -240
+      ],
+      "id": "d1c8ad6f-c075-4622-8d4f-25439a2a32d2",
+      "credentials": {
+        "erpNextApi": {
+          "id": "DHcizRN7kwdJXqZ2",
+          "name": "ERPNext account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "name": "Split Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 1,
+      "position": [
+        520,
+        -240
+      ],
+      "id": "2e63a442-dbaa-4798-9622-2c92f62d5d82"
+    },
+    {
+      "parameters": {
+        "functionCode": "return items.filter(item => item.json.actual_qty < 10);"
+      },
+      "name": "Filter Low Stock",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        720,
+        -240
+      ],
+      "id": "65359678-e3a7-4e9d-9dea-14dbb20de3cf"
+    },
+    {
+      "parameters": {
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "erpNextApi",
+        "requestMethod": "POST",
+        "url": "http://192.168.20.119/api/resource/Purchase Request",
+        "jsonParameters": true,
+        "options": {},
+        "bodyParametersJson": "={\n  \"company\": \"Cornersteel Systems Corporation\",\n  \"schedule_date\": \"{{ $now }}\",\n  \"items\": [\n    {\n      \"item_code\": \"{{ $json.item_code }}\",\n      \"qty\": 10 - $json.actual_qty,\n      \"warehouse\": \"{{ $json.warehouse }}\"\n    }\n  ]\n}"
+      },
+      "name": "Create PR",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [
+        920,
+        -240
+      ],
+      "id": "a6d82367-ea29-49a1-ac02-6f00757a7cd6",
+      "credentials": {
+        "erpNextApi": {
+          "id": "DHcizRN7kwdJXqZ2",
+          "name": "ERPNext account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "requestMethod": "PUT",
+        "url": "={{$json.message.name ? `http://192.168.20.119/api/resource/Purchase Request/${$json.message.name}` : ''}}",
+        "jsonParameters": true,
+        "options": {},
+        "bodyParametersJson": "={\"docstatus\": 1}"
+      },
+      "name": "Submit PR",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        -240
+      ],
+      "id": "8960b346-a5be-493b-9274-c0886f51bfd4"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-07-01T10:16:12.000Z",
+  "versionId": "e6bc12be-375a-4855-a4aa-7851f0a1c5e1"
+}
