@@ -1,0 +1,445 @@
+{
+  "active": false,
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "auto-send-reply",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "auto-send-reply": {
+      "main": [
+        [
+          {
+            "node": "Gmail-Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail-Reply": {
+      "main": [
+        [
+          {
+            "node": "Gmail-markAsRead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract First Name": {
+      "main": [
+        [
+          {
+            "node": "auto-send-reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check for Attachment": {
+      "main": [
+        [
+          {
+            "node": "Extract First Name",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Check for Attachment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read/Write Files from Disk": {
+      "main": [
+        []
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract First Name",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-06-30T01:15:44.433Z",
+  "id": "ErvXRY2XAn94j0k4",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "AI Agent - Gmail (auto-send-reply) internship",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "unit": "minutes"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "readStatus": "unread"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -160,
+        -1460
+      ],
+      "id": "8e7d8e73-1511-405e-aad4-6237dfc45fe7",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "QO3a99AfoDOfNzrj",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1468,
+        -1240
+      ],
+      "id": "e7883189-bfd4-4d0a-ade2-e3b306d185bb",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "ASKNtk66h4eMwYob",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are Rein Simacon, replying to a new email. Read the message content below and write a professional response based on its context — whether it’s about internship applications, scheduling interviews, technical support, or general inquiries.\n\nYour response must:\n- Use the sender’s first name in the greeting\n- Insert a blank line between greeting, body, and signature\n- Use a professional and concise tone\n- Output clean plain text (no HTML or markdown)\n- Avoid automatic footers like “sent by n8n” or anything extra\n\n**Internship Application Rules (CV Only):**\n- If the subject or message body mentions \"internship\", treat it as an internship application\n- Always include Rein’s interview availability in the reply:\n\n  Mon–Wed: 11:00 AM – 12:00 PM and 2:00 PM – 5:00 PM  \n  Thu–Fri: Anytime  \n  Sat–Sun: Not available\n\n- If attachments are present:\n  - If a file with \"cv\" or \"resume\" in its name is attached, acknowledge it as received\n  - If no such file is found, ask them to send their CV\n- If no attachments at all:\n  - Ask them to send their CV\n\n- If the email mentions a specific visit/interview time (e.g., “I will be there at 11:30 AM”), then:\n  - Acknowledge it\n  - Remind them to bring a **hard copy of their CV** on their visit\n\n----\n\nContext:  \nFirst Name: Hello {{ $node[\"Extract First Name\"].json[\"firstName\"] }}\n\nEmail to reply to:  \nFrom: {{ $node[\"Gmail Trigger\"].json[\"from\"][\"text\"] }}  \nSubject: {{ $node[\"Gmail Trigger\"].json[\"headers\"][\"subject\"] }}  \nMessage: {{ $node[\"Gmail Trigger\"].json[\"text\"] }}\n",
+        "options": {
+          "systemMessage": "=#role\nYou are a professional assistant that writes and formats replies to Rein Simacon’s Gmail inbox.\n\n#capabilities and limitations\nYou must:\n- Output plain-text email replies\n- Structure with line breaks between greeting, body, and signature\n- Detect intent (e.g., internship, inquiry, interview, technical issues)\n- Always include Rein’s interview availability in internship-related emails\n- If a resume/CV file is attached (filename contains \"cv\" or \"resume\"), acknowledge it\n- If there are no attachments, or no file appears to be a CV/resume, ask them to send one\n- If the sender proposes a visit time (e.g., “I’ll be there at 11:30 AM”), acknowledge it and say:\n  “Please also bring a hard copy of your CV when you visit.”\n\n#interview_availability\nMon–Wed: 11:00 AM – 12:00 PM and 2:00 PM – 5:00 PM  \nThu–Fri: Anytime  \nSat–Sun: Not available\n\n#attachment_check\n{% if $json.hasResume %}\nThank you for providing your CV.  \n{% else %}\nPlease send a copy of your CV so we can proceed with your internship application.  \n{% endif %}\n\n#response\nAlways close with:\n\nRegards,  \nRein Simacon  \nCornersteel Systems Corporation  \nSystems Administrator\n\n---\n\n#context  \nFirst Name: Hello {{ $node[\"Extract First Name\"].json[\"firstName\"] }}  \n\nEmail to reply to:  \nFrom: {{ $node[\"Gmail Trigger\"].json[\"from\"][\"text\"] }}  \nSubject: {{ $node[\"Gmail Trigger\"].json[\"headers\"][\"subject\"] }}  \nMessage: {{ $node[\"Gmail Trigger\"].json[\"text\"] }}\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        1380,
+        -1460
+      ],
+      "id": "81ff20ce-57dd-435c-92af-24c83936f843",
+      "name": "auto-send-reply"
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $node[\"Gmail Trigger\"].json[\"id\"] }}\n",
+        "emailType": "text",
+        "message": "={{ $node[\"auto-send-reply\"].json[\"output\"] }}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1756,
+        -1460
+      ],
+      "id": "d7a59603-67ad-4027-9f75-d05b1aaaf5a6",
+      "name": "Gmail-Reply",
+      "webhookId": "3769df31-4b9c-4b50-bc37-a341faf1e528",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "QO3a99AfoDOfNzrj",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "markAsRead",
+        "messageId": "={{ $node[\"Gmail Trigger\"].json[\"id\"] }}"
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1976,
+        -1460
+      ],
+      "id": "ade6c171-bf47-40aa-8073-04f03f213d6c",
+      "name": "Gmail-markAsRead",
+      "webhookId": "64ba048c-b113-4d24-a6cf-278003064a5c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "QO3a99AfoDOfNzrj",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const emailBody = $node[\"Gmail Trigger\"].json.text || \"\";\n\n// Try to extract a name from common intro phrases\nconst nameMatch = emailBody.match(/(?:my name is|this is|i am|i’m)\\s+([A-Z][a-z]+(?:\\s+[A-Z][a-z]+)?)/i);\n\n// Default fallback if name is not found\nconst firstName = nameMatch ? nameMatch[1].split(\" \")[0] : \"there\";\n\nreturn {\n  json: {\n    firstName,\n  },\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1160,
+        -1460
+      ],
+      "id": "33e76835-8afc-46b3-87ba-a60a1b9325ee",
+      "name": "Extract First Name"
+    },
+    {
+      "parameters": {
+        "jsCode": "const fileNames = Object.entries($binary || {}).map(([key, value]) => value.fileName || key);\nconst hasAttachment = fileNames.length > 0;\n\n// Bonus: Detect if any filename resembles a resume or CV\nconst hasResume = fileNames.some(file =>\n  file.toLowerCase().includes('cv') || file.toLowerCase().includes('resume')\n);\n\nreturn {\n  hasAttachment,\n  hasResume,\n  attachmentList: fileNames,\n  attachmentCheckMessage: hasAttachment\n    ? `The sender included the following file(s): ${fileNames.join(', ')}.`\n    : 'No attachments were detected.\\nIf this is an internship email, ask the sender to send:\\n- Resume\\n- MOA\\n- Total required internship hours\\n- Any other required documents'\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        940,
+        -1535
+      ],
+      "id": "03a99178-6e94-4eca-bdfb-f024ddea3ca5",
+      "name": "Check for Attachment"
+    },
+    {
+      "parameters": {
+        "url": "=https://gmail.googleapis.com/gmail/v1/users/me/messages/{{ $json[\"id\"] }}?format=full\n",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "gmailOAuth2",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        60,
+        -1460
+      ],
+      "id": "10e326e0-7d1a-40db-a541-f78393b469bd",
+      "name": "HTTP Request",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "QO3a99AfoDOfNzrj",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://gmail.googleapis.com/gmail/v1/users/me/messages/{{ $json[\"id\"] }}/attachments/{{ $json[\"payload\"][\"parts\"][1][\"body\"][\"attachmentId\"] }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "gmailOAuth2",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        500,
+        -1535
+      ],
+      "id": "036617ae-2278-44da-a861-ef54f94b8ecd",
+      "name": "HTTP Request1",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "QO3a99AfoDOfNzrj",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "data",
+        "binaryPropertyName": "=cv",
+        "options": {
+          "fileName": "=/files/{{ $now.toISODate() }}-{{ $('HTTP Request').item.json.payload.headers[19].value }}"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        720,
+        -1535
+      ],
+      "id": "faa5a696-00ce-4760-a05d-561945225a33",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "cv",
+        "options": {
+          "keepSource": "binary"
+        }
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        -1820
+      ],
+      "id": "4167dfac-e4da-4838-812b-16aa031a90cd",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "=/files/{{ $binary.cv.fileName }}\n",
+        "dataPropertyName": "cv",
+        "options": {
+          "append": false
+        }
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        60,
+        -1820
+      ],
+      "id": "02ec8030-efb1-4939-bcb4-6ce7213c2282",
+      "name": "Read/Write Files from Disk"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b77bdc5e-ce3f-4993-8579-908d3e3f825c",
+              "leftValue": "={{$json[\"payload\"][\"parts\"][1][\"filename\"]}}",
+              "rightValue": "=",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        280,
+        -1460
+      ],
+      "id": "7f665eb5-60a0-414f-a6f5-0052807be992",
+      "name": "If"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": {
+    "node:Gmail Trigger": {
+      "Gmail Trigger": {
+        "lastTimeChecked": 1750990741,
+        "possibleDuplicates": [
+          "197af2e8ad4bccd4"
+        ]
+      }
+    }
+  },
+  "tags": [
+    {
+      "createdAt": "2025-06-30T08:20:57.669Z",
+      "updatedAt": "2025-06-30T08:20:57.669Z",
+      "id": "ErU0gqWvngFtTUtJ",
+      "name": "prod"
+    }
+  ],
+  "triggerCount": 1,
+  "updatedAt": "2025-07-01T10:08:18.000Z",
+  "versionId": "91c64d70-3e5a-44ae-8b3c-3e5308a1c105"
+}
