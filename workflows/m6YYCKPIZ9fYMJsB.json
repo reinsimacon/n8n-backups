@@ -1,0 +1,319 @@
+{
+  "active": false,
+  "connections": {
+    "Email Trigger (IMAP)": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Data": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Read Excel File": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append New Row": {
+      "main": [
+        []
+      ]
+    },
+    "Write (Json into XLSX)": {
+      "main": [
+        [
+          {
+            "node": "Write File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Operation, do nothing": {
+      "main": [
+        [
+          {
+            "node": "Read Excel File",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Extract Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        []
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Write (Json into XLSX)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-07-03T05:41:03.321Z",
+  "id": "m6YYCKPIZ9fYMJsB",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "AI-Agent Mailcow (comfac-it) copy",
+  "nodes": [
+    {
+      "parameters": {
+        "postProcessAction": "nothing",
+        "format": "resolved",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2,
+      "position": [
+        -520,
+        -1060
+      ],
+      "id": "3165ef60-e966-4718-bf81-2706a1061f19",
+      "name": "Email Trigger (IMAP)",
+      "credentials": {
+        "imap": {
+          "id": "UIfYVgUrFbBRaDY0",
+          "name": "internship@comfac-it.com(IMAP)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "const raw = $json.headers?.date || '';\nconst formatted = new Date(raw).toISOString(); // or custom format\n\nreturn {\n  email: $json.from?.value?.[0]?.address || '',\n  name: $json.from?.value?.[0]?.name || '',\n  header_date: formatted,\n};\n"
+      },
+      "id": "4dad8a46-807c-489d-b688-7d1e4f7e2716",
+      "name": "Extract Data",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        100,
+        -960
+      ]
+    },
+    {
+      "parameters": {
+        "filePath": "/files/Intern-Applicants.xlsx",
+        "dataPropertyName": "oldData"
+      },
+      "id": "e7d2f5d1-ce9b-4bdd-bcda-e220c68776d3",
+      "name": "Read Excel File",
+      "type": "n8n-nodes-base.readBinaryFile",
+      "typeVersion": 1,
+      "position": [
+        -100,
+        -1280
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "let oldRows = [];\nlet newRow = {};\n\nfor (const item of items) {\n  if (Array.isArray(item.json)) {\n    oldRows = item.json; // This is the old rows from the Excel file\n  } else {\n    newRow = item.json; // This is the new data from Extract Data\n  }\n}\n\n// Combine old rows with new row\nreturn [\n  {\n    json: [...oldRows, newRow],  // append the new row\n  }\n];\n"
+      },
+      "id": "4ac749c3-3a9f-4881-99c7-7c10a240aa33",
+      "name": "Append New Row",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        580,
+        -1380
+      ]
+    },
+    {
+      "parameters": {
+        "fileName": "/files/Intern-Applicants.xlsx",
+        "dataPropertyName": "newData",
+        "options": {}
+      },
+      "id": "c31dadd6-fb85-45f5-b2f5-5dc6e0af5a57",
+      "name": "Write File",
+      "type": "n8n-nodes-base.writeBinaryFile",
+      "typeVersion": 1,
+      "position": [
+        1300,
+        -1020
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "toFile",
+        "fileFormat": "xlsx",
+        "binaryPropertyName": "newData",
+        "options": {
+          "headerRow": false
+        }
+      },
+      "id": "4fd6a5a0-7f00-4906-b18c-b1054a349005",
+      "name": "Write (Json into XLSX)",
+      "type": "n8n-nodes-base.spreadsheetFile",
+      "typeVersion": 1,
+      "position": [
+        980,
+        -1020
+      ]
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -320,
+        -1100
+      ],
+      "id": "3c00d068-92b1-49e7-ae41-42c06f496615",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "operation": "xlsx",
+        "binaryPropertyName": "newData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        840,
+        -1260
+      ],
+      "id": "238bfb82-8375-4b05-b5e0-ac702be05a65",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "operation": "xlsx",
+        "binaryPropertyName": "oldData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        100,
+        -1160
+      ],
+      "id": "086dfd03-e23e-4014-b26a-b4a39657c038",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "008f1abd-0243-4fe4-ac09-3e3541be6344",
+              "name": "0.email",
+              "value": "={{ $json[\"0.email\"] }}{{ $json.email }}",
+              "type": "string"
+            },
+            {
+              "id": "433cded2-6b96-4f5a-8824-628c2d479355",
+              "name": "0.name",
+              "value": "={{ $json[\"0.name\"] }}{{ $json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "88d8b935-dfa3-456c-b993-6fa3f92e9fcc",
+              "name": "0.header_date",
+              "value": "={{ $json[\"0.header_date\"] }}{{ $json.header_date }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        700,
+        -1000
+      ],
+      "id": "c6f7d276-323f-44d9-ac21-86ab2a8f0250",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        380,
+        -960
+      ],
+      "id": "4436e0ca-a2bc-4412-a206-a8200b6bac8e",
+      "name": "Merge"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2025-06-27T03:53:10.093Z",
+      "updatedAt": "2025-06-27T03:53:10.093Z",
+      "id": "AiEsGFwNfKxCHLlu",
+      "name": "development"
+    },
+    {
+      "createdAt": "2025-06-30T06:13:58.644Z",
+      "updatedAt": "2025-06-30T06:13:58.644Z",
+      "id": "GEGyGP2QU0EcPGht",
+      "name": "2"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2025-07-03T06:38:29.000Z",
+  "versionId": "0849a6b2-d24f-48c4-ad53-c6d4398867b5"
+}
