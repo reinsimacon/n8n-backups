@@ -1,0 +1,155 @@
+{
+  "active": false,
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "ERPNext",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ERPNext": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-05-14T04:21:11.274Z",
+  "id": "Yke3NFtqBh9RTLSM",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "ERPnext-Leave",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        140,
+        0
+      ],
+      "id": "f8ee3c8c-0b61-4a59-b2d9-9df232dd762c",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "docType": "Attendance",
+        "returnAll": true,
+        "options": {
+          "fields": [
+            "employee_name",
+            "employee",
+            "company",
+            "leave_application",
+            "leave_type"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.erpNext",
+      "typeVersion": 1,
+      "position": [
+        320,
+        0
+      ],
+      "id": "561c9e6c-cfaa-4cce-9f03-95e0c3c8f0a3",
+      "name": "ERPNext",
+      "credentials": {
+        "erpNextApi": {
+          "id": "DHcizRN7kwdJXqZ2",
+          "name": "ERPNext account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "binaryPropertyName": "={{ $json.filetext }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        720,
+        0
+      ],
+      "id": "103f5799-e0ca-407f-a20c-67ae6923f6fb",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        440,
+        180
+      ],
+      "id": "6635beb4-4570-4ab2-86d3-f7e4a71fef8a",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2b56b727-2e74-4ab9-b045-879a0d47b3cb",
+              "name": "filetext",
+              "value": "={{ $json.employee_name }}\n{{ $json.employee }}\n{{ $json.company }}\n{{ $json.leave_application }}\n{{ $json.leave_type }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        560,
+        0
+      ],
+      "id": "de2f67c2-df36-42e3-9b1b-42ec60bfae3b",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-07-01T10:16:13.000Z",
+  "versionId": "5af72d82-4463-4dc5-996c-55aa5f5acf0b"
+}
